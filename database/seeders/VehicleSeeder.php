@@ -15,7 +15,7 @@ class VehicleSeeder extends Seeder
     {
         Vehicle::create([
             'name' => 'CapBay Vroom',
-            'price_sen' => 20000000,
+            'price_sen' => 20_000_000,
             'is_active' => true,
         ]);
     }

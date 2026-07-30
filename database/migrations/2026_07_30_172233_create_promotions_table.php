@@ -22,6 +22,9 @@ return new class extends Migration
             $table->timestamp('ends_at');
             $table->boolean('is_active');
             $table->timestamps();
+
+            $table->index(['is_active', 'starts_at', 'ends_at']);
+            $table->index(['vehicle_id', 'is_active']);
         });
     }
 

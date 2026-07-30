@@ -23,7 +23,7 @@ return new class extends Migration
                 'test_drive_scheduled',
                 'test_drive_completed',
                 'purchased',
-                'completed',
+                'cancelled'
             ])->default('registered');
             $table->timestamp('registered_at');
             $table->timestamp('test_drive_scheduled_at')->nullable();
@@ -37,6 +37,12 @@ return new class extends Migration
             $table->timestamp('purchased_at')->nullable();
             $table->timestamp('cancelled_at')->nullable();
             $table->timestamps();
+
+            $table->index('status');
+            $table->index('email');
+            $table->index('registered_at');
+            $table->index(['promotion_id', 'status']);
+            $table->index(['vehicle_id', 'status']);
         });
     }
 
