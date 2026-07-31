@@ -1,13 +1,4 @@
 <laravel-boost-guidelines>
-=== project experience rules ===
-
-# CapBay Vroom Experience
-
-- All new pages must preserve the established CapBay Vroom palette defined in `public/css/vroom.css`.
-- User-facing workflows must be linked from the relevant existing landing-page entry point; do not leave completed features disconnected behind a direct URL.
-- Apply SOLID, object-oriented design, and Laravel conventions. Keep UI components focused and extract domain mutations into dedicated action or service classes when they represent distinct business operations.
-- Deliver requested workflows end to end, including authorization, validation, responsive UI states, and focused Pest coverage.
-
 === foundation rules ===
 
 # Laravel Boost Guidelines
@@ -117,6 +108,13 @@ This project has domain-specific skills available in `**/skills/**`. You MUST ac
 # Deployment
 
 - Laravel can be deployed using [Laravel Cloud](https://cloud.laravel.com/), which is the fastest way to deploy and scale production Laravel applications.
+
+=== tests rules ===
+
+# Test Enforcement
+
+- Every change must be programmatically tested. Write a new test or update an existing test, then run the affected tests to make sure they pass.
+- Run the minimum number of tests needed to ensure code quality and speed. Use `php artisan test --compact` with a specific filename or filter.
 
 === laravel/core rules ===
 

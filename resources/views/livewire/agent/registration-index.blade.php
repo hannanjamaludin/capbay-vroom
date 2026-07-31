@@ -89,15 +89,20 @@
             </table>
         </div>
 
-        @if ($registrations->isNotEmpty())
+        @if ($registrations->hasPages())
+            @php($previousCursor = $registrations->previousCursor() ?? $registrations->cursor())
+            @php($nextCursor = $registrations->nextCursor() ?? $registrations->cursor())
             <nav class="agent-pagination" aria-label="Registration pages">
-                <button type="button" wire:click="previousPage" class="btn btn-vroom-outline"
+                <button type="button"
+                    wire:key="cursor-{{ $registrations->getCursorName() }}-{{ $previousCursor?->encode() }}"
+                    wire:click="setPage('{{ $previousCursor?->encode() }}', '{{ $registrations->getCursorName() }}')"
+                    class="btn btn-vroom-outline"
                     @disabled($registrations->onFirstPage())>Previous</button>
-                <span>
-                    {{ number_format($registrations->firstItem()) }} - {{ number_format($registrations->lastItem()) }}
-                    out of {{ number_format($registrations->total()) }}
-                </span>
-                <button type="button" wire:click="nextPage" class="btn btn-vroom-outline"
+                <span>Showing up to {{ $registrations->perPage() }} registrations</span>
+                <button type="button"
+                    wire:key="cursor-{{ $registrations->getCursorName() }}-{{ $nextCursor?->encode() }}"
+                    wire:click="setPage('{{ $nextCursor?->encode() }}', '{{ $registrations->getCursorName() }}')"
+                    class="btn btn-vroom-outline"
                     @disabled(! $registrations->hasMorePages())>Next</button>
             </nav>
         @endif

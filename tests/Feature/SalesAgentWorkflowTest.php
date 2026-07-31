@@ -6,6 +6,7 @@ use App\Models\Promotion;
 use App\Models\Registration;
 use App\Models\User;
 use App\Models\Vehicle;
+use Illuminate\Support\Facades\DB;
 use Livewire\Livewire;
 
 test('the landing page links to the sales agent login', function () {
@@ -57,7 +58,7 @@ test('agent registration routes are protected by authentication and role', funct
         ->assertForbidden();
 });
 
-test('agents can search and filter the paginated registration list', function () {
+test('agents can search and filter the cursor paginated registration list', function () {
     $agent = User::factory()->salesAgent()->create();
     $firstVehicle = Vehicle::query()->create([
         'name' => 'Vroom Alpha',
@@ -92,12 +93,10 @@ test('agents can search and filter the paginated registration list', function ()
         ->set('vehicle', (string) $secondVehicle->id)
         ->assertSee('Hidden Customer')
         ->assertDontSee('Searchable Customer')
-        ->assertSee('1 - 1')
-        ->assertSee('out of 1')
-        ->assertViewHas('registrations', fn ($registrations): bool => $registrations instanceof \Illuminate\Pagination\LengthAwarePaginator);
+        ->assertViewHas('registrations', fn ($registrations): bool => $registrations instanceof \Illuminate\Pagination\CursorPaginator);
 });
 
-test('the registration footer shows the current indexes and filtered total on every page', function () {
+test('the registration footer provides cursor navigation without a total count', function () {
     $agent = User::factory()->salesAgent()->create();
     $vehicle = Vehicle::query()->create([
         'name' => 'Paginated Vroom',
@@ -116,9 +115,65 @@ test('the registration footer shows the current indexes and filtered total on ev
     Livewire::actingAs($agent)
         ->test(RegistrationIndex::class)
         ->set('status', 'registered')
-        ->call('setPage', 2)
-        ->assertSee('13 - 15')
-        ->assertSee('out of 15');
+        ->assertSee('Showing up to 12 registrations')
+        ->assertDontSee('out of');
+});
+
+test('agents can navigate the cursor paginated registration list', function () {
+    $agent = User::factory()->salesAgent()->create();
+    $vehicle = Vehicle::query()->create([
+        'name' => 'Pagination Vroom',
+        'price_sen' => 10_000_000,
+        'is_active' => true,
+    ]);
+
+    Registration::factory()->count(13)->create([
+        'vehicle_id' => $vehicle->id,
+    ]);
+
+    $firstPage = Registration::query()
+        ->orderByDesc('id')
+        ->cursorPaginate(12);
+    $nextCursor = $firstPage->nextCursor();
+    $secondPageRegistration = Registration::query()->oldest('id')->firstOrFail();
+
+    Livewire::actingAs($agent);
+
+    Livewire::withQueryParams([
+        $firstPage->getCursorName() => $nextCursor?->encode(),
+    ])
+        ->test(RegistrationIndex::class)
+        ->assertSee('#'.$secondPageRegistration->id);
+});
+
+test('the registration list eager loads vehicles and selects only rendered columns', function () {
+    $agent = User::factory()->salesAgent()->create();
+    $vehicle = Vehicle::query()->create([
+        'name' => 'Query Vroom',
+        'price_sen' => 10_000_000,
+        'is_active' => true,
+    ]);
+
+    Registration::factory()->count(13)->create([
+        'vehicle_id' => $vehicle->id,
+    ]);
+
+    DB::flushQueryLog();
+    DB::enableQueryLog();
+
+    Livewire::actingAs($agent)->test(RegistrationIndex::class);
+
+    $listQueries = collect(DB::getQueryLog())
+        ->pluck('query')
+        ->filter(fn (string $query): bool => str_contains($query, 'registrations') || str_contains($query, 'vehicles'))
+        ->values();
+    $registrationQuery = $listQueries->first(fn (string $query): bool => str_contains($query, 'from "registrations"'));
+    $rowVehicleQueries = $listQueries->filter(fn (string $query): bool => str_contains($query, 'from "vehicles" where "vehicles"."id" in'));
+
+    expect($listQueries)->toHaveCount(3)
+        ->and($rowVehicleQueries)->toHaveCount(1)
+        ->and($registrationQuery)->not->toContain('phone')
+        ->and($registrationQuery)->not->toContain('loan_amount_sen');
 });
 
 test('agents can update financials with an already approved loan assumption', function () {
