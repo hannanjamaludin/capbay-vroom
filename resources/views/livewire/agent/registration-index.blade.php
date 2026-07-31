@@ -89,11 +89,14 @@
             </table>
         </div>
 
-        @if ($registrations->hasPages())
+        @if ($registrations->isNotEmpty())
             <nav class="agent-pagination" aria-label="Registration pages">
                 <button type="button" wire:click="previousPage" class="btn btn-vroom-outline"
                     @disabled($registrations->onFirstPage())>Previous</button>
-                <span>Showing up to {{ $registrations->perPage() }} registrations</span>
+                <span>
+                    {{ number_format($registrations->firstItem()) }} - {{ number_format($registrations->lastItem()) }}
+                    out of {{ number_format($registrations->total()) }}
+                </span>
                 <button type="button" wire:click="nextPage" class="btn btn-vroom-outline"
                     @disabled(! $registrations->hasMorePages())>Next</button>
             </nav>

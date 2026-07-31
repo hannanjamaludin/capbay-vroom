@@ -59,8 +59,7 @@ class RegistrationIndex extends Component
                 }))
                 ->when($this->status !== '', fn ($query) => $query->where('status', $this->status))
                 ->when($this->vehicle !== '', fn ($query) => $query->where('vehicle_id', $this->vehicle))
-                ->orderByDesc('id')
-                ->cursorPaginate(12),
+                ->paginate(12),
             'statuses' => RegistrationStatus::cases(),
             'vehicles' => Vehicle::query()->orderBy('name')->get(['id', 'name']),
         ]);

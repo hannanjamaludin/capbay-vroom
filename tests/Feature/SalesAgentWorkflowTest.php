@@ -57,7 +57,7 @@ test('agent registration routes are protected by authentication and role', funct
         ->assertForbidden();
 });
 
-test('agents can search and filter the cursor paginated registration list', function () {
+test('agents can search and filter the paginated registration list', function () {
     $agent = User::factory()->salesAgent()->create();
     $firstVehicle = Vehicle::query()->create([
         'name' => 'Vroom Alpha',
@@ -92,7 +92,33 @@ test('agents can search and filter the cursor paginated registration list', func
         ->set('vehicle', (string) $secondVehicle->id)
         ->assertSee('Hidden Customer')
         ->assertDontSee('Searchable Customer')
-        ->assertViewHas('registrations', fn ($registrations): bool => $registrations instanceof \Illuminate\Pagination\CursorPaginator);
+        ->assertSee('1 - 1')
+        ->assertSee('out of 1')
+        ->assertViewHas('registrations', fn ($registrations): bool => $registrations instanceof \Illuminate\Pagination\LengthAwarePaginator);
+});
+
+test('the registration footer shows the current indexes and filtered total on every page', function () {
+    $agent = User::factory()->salesAgent()->create();
+    $vehicle = Vehicle::query()->create([
+        'name' => 'Paginated Vroom',
+        'price_sen' => 10_000_000,
+        'is_active' => true,
+    ]);
+
+    Registration::factory()->count(15)->create([
+        'vehicle_id' => $vehicle->id,
+        'status' => 'registered',
+    ]);
+    Registration::factory()->testDriveCompleted()->create([
+        'vehicle_id' => $vehicle->id,
+    ]);
+
+    Livewire::actingAs($agent)
+        ->test(RegistrationIndex::class)
+        ->set('status', 'registered')
+        ->call('setPage', 2)
+        ->assertSee('13 - 15')
+        ->assertSee('out of 15');
 });
 
 test('agents can update financials with an already approved loan assumption', function () {
