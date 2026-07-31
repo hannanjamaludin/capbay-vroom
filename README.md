@@ -39,7 +39,7 @@ Promotion percentages are stored as basis points, where 100 basis points equal
 - Laravel 13
 - Livewire 4
 - MySQL
-- Tailwind CSS 4
+- Bootstrap 5
 - Pest 5
 
 ## Local setup
