@@ -27,7 +27,6 @@ class SalesAgentLoginRequest extends FormRequest
         return [
             'email' => ['required', 'string', 'email'],
             'password' => ['required', 'string'],
-            'remember' => ['sometimes', 'boolean'],
         ];
     }
 
@@ -37,7 +36,7 @@ class SalesAgentLoginRequest extends FormRequest
             'email' => $this->string('email')->lower()->toString(),
             'password' => $this->string('password')->toString(),
             'role' => \App\Models\User::ROLE_SALES_AGENT,
-        ], $this->boolean('remember'))) {
+        ])) {
             throw ValidationException::withMessages([
                 'email' => 'These credentials do not match a sales agent account.',
             ]);

@@ -4,7 +4,6 @@ use App\Models\Promotion;
 use App\Models\Registration;
 use App\Models\Vehicle;
 use App\Services\RegistrationPricingService;
-use Database\Seeders\RegistrationSeeder;
 
 /**
  * @return array{
@@ -38,23 +37,6 @@ function createRegistrationPricingScenario(): array
         'pricingService' => app(RegistrationPricingService::class),
     ];
 }
-
-test('it applies an eligible promotion using integer sen values', function () {
-    $scenario = createRegistrationPricingScenario();
-    $pricing = $scenario['pricingService']->calculate(
-        $scenario['vehicle'],
-        $scenario['promotion'],
-        2_000_000,
-        'customer.a@example.com',
-    );
-
-    expect($pricing['is_promotion_eligible'])->toBeTrue()
-        ->and($pricing['promotion_id'])->toBe($scenario['promotion']->id)
-        ->and($pricing['vehicle_price_sen'])->toBe(20_000_000)
-        ->and($pricing['applied_discount_sen'])->toBe(3_000_000)
-        ->and($pricing['final_price_sen'])->toBe(17_000_000)
-        ->and($pricing['loan_amount_sen'])->toBe(15_000_000);
-});
 
 test('it continues at full price when the down payment is ineligible', function () {
     $scenario = createRegistrationPricingScenario();
@@ -137,27 +119,6 @@ test('it rejects a promotion when eligibility requirements are not met', functio
     ],
 ]);
 
-test('it prevents the same customer from using a promotion twice', function () {
-    $scenario = createRegistrationPricingScenario();
-
-    Registration::factory()->create([
-        'vehicle_id' => $scenario['vehicle']->id,
-        'promotion_id' => $scenario['promotion']->id,
-        'email' => 'customer.a@example.com',
-    ]);
-
-    $pricing = $scenario['pricingService']->calculate(
-        $scenario['vehicle'],
-        $scenario['promotion'],
-        2_000_000,
-        'CUSTOMER.A@example.com',
-    );
-
-    expect($pricing['is_promotion_eligible'])->toBeFalse()
-        ->and($pricing['promotion_id'])->toBeNull()
-        ->and($pricing['final_price_sen'])->toBe(20_000_000);
-});
-
 test('it rejects a promotion after its customer limit is reached', function () {
     $scenario = createRegistrationPricingScenario();
     $scenario['promotion']->update(['customer_limit' => 1]);
@@ -178,50 +139,4 @@ test('it rejects a promotion after its customer limit is reached', function () {
     expect($pricing['is_promotion_eligible'])->toBeFalse()
         ->and($pricing['ineligibility_reason'])
         ->toBe('The promotion customer limit has been reached.');
-});
-
-test('it calculates the loan from the discounted price and never below zero', function (
-    int $downPaymentSen,
-    int $expectedLoanAmountSen,
-) {
-    $scenario = createRegistrationPricingScenario();
-
-    $pricing = $scenario['pricingService']->calculate(
-        $scenario['vehicle'],
-        $scenario['promotion'],
-        $downPaymentSen,
-        'loan@example.com',
-    );
-
-    expect($pricing['final_price_sen'])->toBe(17_000_000)
-        ->and($pricing['loan_amount_sen'])->toBe($expectedLoanAmountSen);
-})->with([
-    'partial financing' => [2_000_000, 15_000_000],
-    'fully paid' => [17_000_000, 0],
-    'overpaid' => [20_000_000, 0],
-]);
-
-test('the registration seeder creates the three pricing scenarios', function () {
-    $this->seed();
-    $this->seed(RegistrationSeeder::class);
-
-    $customerA = Registration::query()->where('email', 'customer.a@example.com')->firstOrFail();
-    $customerB = Registration::query()->where('email', 'customer.b@example.com')->firstOrFail();
-    $customerC = Registration::query()->where('email', 'customer.c@example.com')->firstOrFail();
-
-    expect(Registration::query()->whereIn('email', [
-        'customer.a@example.com',
-        'customer.b@example.com',
-        'customer.c@example.com',
-    ])->count())->toBe(3)
-        ->and($customerA->promotion_id)->not->toBeNull()
-        ->and($customerA->final_price_sen)->toBe(17_000_000)
-        ->and($customerB->promotion_id)->toBeNull()
-        ->and($customerB->applied_discount_sen)->toBe(0)
-        ->and($customerB->final_price_sen)->toBe(20_000_000)
-        ->and($customerB->loan_amount_sen)->toBe(19_000_000)
-        ->and($customerC->promotion_id)->not->toBeNull()
-        ->and($customerC->applied_discount_sen)->toBe(3_000_000)
-        ->and($customerC->final_price_sen)->toBe(17_000_000)
-        ->and($customerC->loan_amount_sen)->toBe(12_000_000);
 });

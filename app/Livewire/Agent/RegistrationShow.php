@@ -70,7 +70,6 @@ class RegistrationShow extends Component
 
     private function authorizeAgent(): void
     {
-        // $user = auth()->user();
         $user = Auth::user();
 
         abort_unless($user instanceof User && $user->isSalesAgent(), 403);

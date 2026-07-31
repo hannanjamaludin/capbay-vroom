@@ -38,11 +38,6 @@
                         @error('password') <div class="invalid-feedback">{{ $message }}</div> @enderror
                     </div>
 
-                    <div class="col-12 form-check">
-                        <input id="remember" name="remember" value="1" type="checkbox" class="form-check-input">
-                        <label for="remember" class="form-check-label">Keep me signed in</label>
-                    </div>
-
                     <div class="col-12 d-grid">
                         <button type="submit" class="btn btn-vroom-primary btn-lg">Sign in</button>
                     </div>
