@@ -43,10 +43,10 @@
                             <span aria-hidden="true">→</span>
                         </a>
 
-                        <span class="btn btn-vroom-disabled btn-lg disabled" aria-disabled="true">
-                            Staff portal
-                            <span class="status-pill">Coming soon</span>
-                        </span>
+                        <a href="{{ route('agent.login') }}" class="btn btn-vroom-outline btn-lg">
+                            Sales agent portal
+                            <span aria-hidden="true">→</span>
+                        </a>
                     </div>
                 </section>
 

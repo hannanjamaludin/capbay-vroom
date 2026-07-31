@@ -1,4 +1,13 @@
 <laravel-boost-guidelines>
+=== project experience rules ===
+
+# CapBay Vroom Experience
+
+- All new pages must preserve the established CapBay Vroom palette defined in `public/css/vroom.css`.
+- User-facing workflows must be linked from the relevant existing landing-page entry point; do not leave completed features disconnected behind a direct URL.
+- Apply SOLID, object-oriented design, and Laravel conventions. Keep UI components focused and extract domain mutations into dedicated action or service classes when they represent distinct business operations.
+- Deliver requested workflows end to end, including authorization, validation, responsive UI states, and focused Pest coverage.
+
 === foundation rules ===
 
 # Laravel Boost Guidelines

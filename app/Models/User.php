@@ -26,6 +26,10 @@ use Illuminate\Support\Str;
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
+    public const ROLE_ADMIN = '1';
+
+    public const ROLE_SALES_AGENT = '2';
+
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
 
@@ -52,5 +56,10 @@ class User extends Authenticatable
         return Str::length($initials) > 1
             ? Str::substr($initials, 0, 1).Str::substr($initials, -1)
             : $initials;
+    }
+
+    public function isSalesAgent(): bool
+    {
+        return $this->role === self::ROLE_SALES_AGENT;
     }
 }
