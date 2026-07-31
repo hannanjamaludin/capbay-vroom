@@ -40,8 +40,8 @@ class RegistrationFactory extends Factory
             'registered_at' => now(),
             'test_drive_scheduled_at' => null,
             'test_drive_completed_at' => null,
-            'loan_approved_at' => null,
             'down_payment_sen' => $downPaymentSen,
+            'paid_down_payment' => false,
             'vehicle_price_sen' => $vehicle->price_sen,
             'applied_discount_sen' => 0,
             'final_price_sen' => $vehicle->price_sen,
@@ -53,7 +53,7 @@ class RegistrationFactory extends Factory
 
     public function testDriveScheduled(): static
     {
-        return $this->state(fn(): array => [
+        return $this->state(fn (): array => [
             'status' => 'test_drive_scheduled',
             'test_drive_scheduled_at' => now(),
         ]);
@@ -61,7 +61,7 @@ class RegistrationFactory extends Factory
 
     public function testDriveCompleted(): static
     {
-        return $this->state(fn(): array => [
+        return $this->state(fn (): array => [
             'status' => 'test_drive_completed',
             'test_drive_scheduled_at' => now()->subDay(),
             'test_drive_completed_at' => now(),
@@ -70,18 +70,18 @@ class RegistrationFactory extends Factory
 
     public function purchased(): static
     {
-        return $this->state(fn(): array => [
+        return $this->state(fn (): array => [
             'status' => 'purchased',
             'test_drive_scheduled_at' => now()->subDays(3),
             'test_drive_completed_at' => now()->subDays(2),
-            'loan_approved_at' => now()->subDay(),
+            'paid_down_payment' => true,
             'purchased_at' => now(),
         ]);
     }
 
     public function cancelled(): static
     {
-        return $this->state(fn(): array => [
+        return $this->state(fn (): array => [
             'status' => 'cancelled',
             'cancelled_at' => now(),
         ]);

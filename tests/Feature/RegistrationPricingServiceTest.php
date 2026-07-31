@@ -119,24 +119,33 @@ test('it rejects a promotion when eligibility requirements are not met', functio
     ],
 ]);
 
-test('it rejects a promotion after its customer limit is reached', function () {
+test('it does not grant or consume a promotion place before the down payment is paid', function () {
     $scenario = createRegistrationPricingScenario();
     $scenario['promotion']->update(['customer_limit' => 1]);
 
     Registration::factory()->create([
         'vehicle_id' => $scenario['vehicle']->id,
-        'promotion_id' => $scenario['promotion']->id,
-        'email' => 'first@example.com',
+        'promotion_id' => null,
+        'email' => 'unpaid@example.com',
+        'paid_down_payment' => false,
     ]);
 
-    $pricing = $scenario['pricingService']->calculate(
+    $unpaidPricing = $scenario['pricingService']->calculate(
         $scenario['vehicle'],
         $scenario['promotion'],
         2_000_000,
-        'next@example.com',
+        'unpaid@example.com',
+        hasPaidDownPayment: false,
+    );
+    $paidPricing = $scenario['pricingService']->calculate(
+        $scenario['vehicle'],
+        $scenario['promotion'],
+        2_000_000,
+        'paid@example.com',
+        hasPaidDownPayment: true,
     );
 
-    expect($pricing['is_promotion_eligible'])->toBeFalse()
-        ->and($pricing['ineligibility_reason'])
-        ->toBe('The promotion customer limit has been reached.');
+    expect($unpaidPricing['is_promotion_eligible'])->toBeFalse()
+        ->and($unpaidPricing['ineligibility_reason'])->toBe('The down payment has not been paid.')
+        ->and($paidPricing['is_promotion_eligible'])->toBeTrue();
 });

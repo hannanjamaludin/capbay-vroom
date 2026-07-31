@@ -15,7 +15,7 @@ use Illuminate\Support\Carbon;
  * @property Carbon $registered_at
  * @property Carbon|null $test_drive_scheduled_at
  * @property Carbon|null $test_drive_completed_at
- * @property Carbon|null $loan_approved_at
+ * @property bool $paid_down_payment
  * @property Carbon|null $purchased_at
  * @property Carbon|null $cancelled_at
  */
@@ -29,8 +29,8 @@ use Illuminate\Support\Carbon;
     'registered_at',
     'test_drive_scheduled_at',
     'test_drive_completed_at',
-    'loan_approved_at',
     'down_payment_sen',
+    'paid_down_payment',
     'vehicle_price_sen',
     'applied_discount_sen',
     'final_price_sen',
@@ -62,7 +62,7 @@ class Registration extends Model
             'registered_at' => 'datetime',
             'test_drive_scheduled_at' => 'datetime',
             'test_drive_completed_at' => 'datetime',
-            'loan_approved_at' => 'datetime',
+            'paid_down_payment' => 'boolean',
             'purchased_at' => 'datetime',
             'cancelled_at' => 'datetime',
         ];

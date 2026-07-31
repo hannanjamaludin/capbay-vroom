@@ -16,8 +16,8 @@ return new class extends Migration
             $table->foreignId('vehicle_id')->constrained()->restrictOnDelete();
             $table->foreignId('promotion_id')->nullable()->constrained()->nullOnDelete();
             $table->string('customer_name');
-            $table->string('email');
-            $table->string('phone');
+            $table->string('email')->unique();
+            $table->string('phone')->unique();
             $table->enum('status', [
                 'registered',
                 'test_drive_scheduled',
@@ -28,8 +28,8 @@ return new class extends Migration
             $table->timestamp('registered_at');
             $table->timestamp('test_drive_scheduled_at')->nullable();
             $table->timestamp('test_drive_completed_at')->nullable();
-            $table->timestamp('loan_approved_at')->nullable();
             $table->unsignedBigInteger('down_payment_sen');
+            $table->boolean('paid_down_payment')->default(false);
             $table->unsignedBigInteger('vehicle_price_sen');
             $table->unsignedBigInteger('applied_discount_sen')->nullable();
             $table->unsignedBigInteger('final_price_sen')->nullable();
@@ -43,6 +43,7 @@ return new class extends Migration
             $table->index('registered_at');
             $table->index(['promotion_id', 'status']);
             $table->index(['vehicle_id', 'status']);
+            $table->index(['promotion_id', 'paid_down_payment']);
         });
     }
 

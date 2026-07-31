@@ -23,6 +23,7 @@ class CreateRegistrationAction
             promotion: null,
             downPaymentSen: $customerData['down_payment_sen'],
             customerEmail: $customerData['email'],
+            hasPaidDownPayment: false,
             registeredAt: $registeredAt,
         );
 
@@ -32,6 +33,7 @@ class CreateRegistrationAction
             'promotion_id' => $pricing['promotion_id'],
             'status' => 'registered',
             'registered_at' => $registeredAt,
+            'paid_down_payment' => false,
             'vehicle_price_sen' => $pricing['vehicle_price_sen'],
             'applied_discount_sen' => $pricing['applied_discount_sen'],
             'final_price_sen' => $pricing['final_price_sen'],

@@ -43,7 +43,7 @@ class RegistrationShow extends Component
             (int) round(((float) $validated['downPayment']) * 100),
         );
         $this->downPayment = number_format($this->registration->down_payment_sen / 100, 2, '.', '');
-        session()->flash('agent_notice', 'Financial details updated.');
+        session()->flash('agent_notice', 'Down payment confirmed and financial details updated.');
     }
 
     public function updateStatus(string $nextStatus, TransitionRegistrationStatus $transitionStatus): void

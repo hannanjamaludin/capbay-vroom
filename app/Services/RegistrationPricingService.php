@@ -26,6 +26,7 @@ class RegistrationPricingService
         ?Promotion $promotion,
         int $downPaymentSen,
         string $customerEmail,
+        bool $hasPaidDownPayment = true,
         ?CarbonInterface $registeredAt = null,
         ?Registration $existingRegistration = null,
     ): array {
@@ -35,6 +36,7 @@ class RegistrationPricingService
             $promotion,
             $downPaymentSen,
             $customerEmail,
+            $hasPaidDownPayment,
             $registeredAt,
             $existingRegistration,
         );
@@ -60,6 +62,7 @@ class RegistrationPricingService
         ?Promotion $promotion,
         int $downPaymentSen,
         string $customerEmail,
+        bool $hasPaidDownPayment,
         CarbonInterface $registeredAt,
         ?Registration $existingRegistration,
     ): ?string {
@@ -83,6 +86,10 @@ class RegistrationPricingService
             return 'The promotion is outside its validity period.';
         }
 
+        if (! $hasPaidDownPayment) {
+            return 'The down payment has not been paid.';
+        }
+
         $minimumDownPaymentSen = intdiv(
             $vehicle->price_sen * $promotion->minimum_down_payment_basis_point,
             10_000,
@@ -99,14 +106,18 @@ class RegistrationPricingService
             ->whereRaw('LOWER(email) = ?', [$normalizedEmail])
             ->when(
                 $existingRegistration?->exists,
-                fn($query) => $query->whereKeyNot($existingRegistration->getKey()),
+                fn ($query) => $query->whereKeyNot($existingRegistration->getKey()),
             )
             ->exists()
         ) {
             return 'The customer has already used this promotion.';
         }
 
-        if (Registration::query()->where('promotion_id', $promotion->id)->count() >= $promotion->customer_limit) {
+        if (Registration::query()
+            ->where('promotion_id', $promotion->id)
+            ->where('paid_down_payment', true)
+            ->count() >= $promotion->customer_limit
+        ) {
             return 'The promotion customer limit has been reached.';
         }
 

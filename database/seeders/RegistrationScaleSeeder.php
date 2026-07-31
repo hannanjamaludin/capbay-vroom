@@ -56,7 +56,7 @@ class RegistrationScaleSeeder extends Seeder
         ];
 
         return array_map(
-            fn(array $vehicle): Vehicle => Vehicle::query()->firstOrCreate(
+            fn (array $vehicle): Vehicle => Vehicle::query()->firstOrCreate(
                 ['name' => $vehicle['name']],
                 ['price_sen' => $vehicle['price_sen'], 'is_active' => true],
             ),
@@ -102,8 +102,8 @@ class RegistrationScaleSeeder extends Seeder
             'registered_at' => $registeredAt,
             'test_drive_scheduled_at' => $testDriveScheduledAt,
             'test_drive_completed_at' => $testDriveCompletedAt,
-            'loan_approved_at' => $purchasedAt?->copy()->subDay(),
             'down_payment_sen' => $downPaymentSen,
+            'paid_down_payment' => true,
             'vehicle_price_sen' => $vehicle->price_sen,
             'applied_discount_sen' => 0,
             'final_price_sen' => $vehicle->price_sen,
@@ -145,8 +145,8 @@ class RegistrationScaleSeeder extends Seeder
                 'registered_at',
                 'test_drive_scheduled_at',
                 'test_drive_completed_at',
-                'loan_approved_at',
                 'down_payment_sen',
+                'paid_down_payment',
                 'vehicle_price_sen',
                 'applied_discount_sen',
                 'final_price_sen',

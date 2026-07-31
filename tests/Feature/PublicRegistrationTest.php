@@ -35,6 +35,7 @@ test('a customer can register and receives confirmation', function () {
         ->and($registration->phone)->toBe('+60123456789')
         ->and($registration->vehicle_id)->toBe($vehicle->id)
         ->and($registration->down_payment_sen)->toBe(1_000_050)
+        ->and($registration->paid_down_payment)->toBeFalse()
         ->and($registration->status)->toBe('registered')
         ->and($registration->registered_at)->not->toBeNull()
         ->and($registration->vehicle_price_sen)->toBe($vehicle->price_sen)

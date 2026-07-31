@@ -40,16 +40,28 @@
                     <p class="agent-muted">Applied promotion: <strong>{{ $registration->promotion->name }}</strong></p>
                 @endif
 
+                <p class="agent-muted">
+                    Down payment status:
+                    <strong>{{ $registration->paid_down_payment ? 'Paid and confirmed' : 'Awaiting payment' }}</strong>
+                </p>
+
                 <form wire:submit="updateFinancials" class="financial-form">
                     <div>
                         <label for="down-payment" class="form-label">Down payment (RM)</label>
                         <input id="down-payment" type="number" min="0" step="0.01" wire:model="downPayment"
+                            @disabled($registration->paid_down_payment)
                             @class(['form-control', 'is-invalid' => $errors->has('downPayment')])>
                         @error('downPayment') <div class="invalid-feedback">{{ $message }}</div> @enderror
                     </div>
-                    <button type="submit" wire:loading.attr="disabled" class="btn btn-vroom-primary">
-                        Update financials
-                    </button>
+                    @if ($registration->paid_down_payment)
+                        <button type="button" class="btn btn-vroom-primary" disabled>
+                            Payment confirmed
+                        </button>
+                    @else
+                        <button type="submit" wire:loading.attr="disabled" class="btn btn-vroom-primary">
+                            Confirm payment and update financials
+                        </button>
+                    @endif
                 </form>
 
             </section>
